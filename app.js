@@ -46,12 +46,13 @@ app.post('/v1/controle-musicas/musica', cors(), bodyParserJSON, async function(r
     //Recebe os dados encaminhados no body da requisição
     let dadosBody = request.body
 
-    let result = await controllerMusica.inserirMusica(dadosBody)
+    let result = await controllerMusica.inserirMusica(dadosBody, contentType)
 
     response.status(result.status_code)
     response.json(result)
-
     
+    //Recebe content-type da requisição para validar o formato de dados.
+    let contentType = request.headers['content-type']
 
 
 })

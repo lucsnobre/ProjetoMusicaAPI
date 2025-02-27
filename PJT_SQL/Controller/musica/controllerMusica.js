@@ -13,8 +13,13 @@ const { ERROR_INTERNAL_SERVER } = require('../../../Módulo/config')
 const musicaDAO = require('../../Model/DAO/musica')
 
 //Função para inserir uma música
-const inserirMusica = async function(musica){
+const inserirMusica = async function(musica, contentType){
     try {
+
+        if(String(contentType).toLowerCase() = 'application/json')
+
+        {
+
         if(  musica.nome_musica             == undefined || musica.nome_musica                     == ''        || musica.nome_musica                     == null        || musica.nome_musica.lenght                 > 80     ||
             musica.link             == undefined || musica.link                     == ''        || musica.link                     == null        || musica.link.lenght                 > 200    ||
             musica.duracao          == undefined || musica.duracao                  == ''        || musica.duracao                  == null        || musica.duracao.lenght              > 5      ||
@@ -31,7 +36,9 @@ const inserirMusica = async function(musica){
            else
                return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
        }
-    
+        }else{
+            return MESSAGE.ERROR_CONTENT_TYPE //415
+        }
     } catch (error){
         return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER //500
     }

@@ -12,7 +12,7 @@
 const ERROR_REQUIRED_FIELDS = {status: false, status_code: 400, message: 'Existem campos obrigatórios não preenchidos.'}
 const ERROR_INTERNAL_SERVER_CONTROLLER = {status: false, status_code: 500, message: 'Devido a um erro interno no servidor de controle de dados (controller),não foi possível processar a requisição.'}
 const ERROR_INTERNAL_SERVER_MODEL = {status: false, status_code: 500, message: 'Devido a um erro interno no servidor de modelagem de dados, não foi possível processar a requisição'}
-
+const ERROR_CONTENT_TYPE = {status: false, status_code: 415, message: 'Não foi possível processar a requisição, pois os tipos de dados encaminhados não são aceitos na API. Você deve encaminhar apenas JSON.'}
 
 
 /************************ MENSAGENS DE SUCESSO *************************************/
@@ -24,5 +24,6 @@ module.exports = {
     ERROR_REQUIRED_FIELDS,
     SUCESS_CREATED_ITEM,
     ERROR_INTERNAL_SERVER_CONTROLLER,
-    ERROR_INTERNAL_SERVER_MODEL
+    ERROR_INTERNAL_SERVER_MODEL,
+    ERROR_CONTENT_TYPE
 }
