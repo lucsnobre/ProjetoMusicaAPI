@@ -43,6 +43,8 @@ app.use((request, response, next) =>{
 //Endpoint para inserir uma música
 app.post('/v1/controle-musicas/musica', cors(), bodyParserJSON, async function(request, response){
     
+    //Recebe content-type da requisição para validar o formato de dados.
+    let contentType = request.headers['content-type']
     //Recebe os dados encaminhados no body da requisição
     let dadosBody = request.body
 
@@ -51,12 +53,43 @@ app.post('/v1/controle-musicas/musica', cors(), bodyParserJSON, async function(r
     response.status(result.status_code)
     response.json(result)
     
-    //Recebe content-type da requisição para validar o formato de dados.
-    let contentType = request.headers['content-type']
 
 
 })
 
+//Endpoint para retornar uma lista de músicas
+app.get('/v1/controle-musicas/musica', cors(), async function(request, response){
+    //Chama a função pra retornar uma lista de músicas
+    let result = await controllerMusica.listarMusica()
+    
+    response.status(result.status_code)
+    response.json(result)
+})
+
+app.get('/v1/controle-musicas/musica/:search_id', cors(), async function(request, response) {
+
+    let result = await controllerMusica.buscarMusica();
+
+    if (result && result.status_code) {
+        response.status(result.status_code);
+        response.json(result);
+    } else {
+        response.status(500).json({ error: "Erro interno no servidor" });
+    }
+});
+
+app.delete('/v1/controle-musicas/musica/', cors(), async function(request, response) {
+
+    let result = await controllerMusica.excluirMusica()
+
+    if (result && result.status_code) {
+        response.status(result.status_code)
+        response.json(result)
+    } else {
+        response.status(500).json({ error: "Erro interno no servidor" })
+    }
+})
+
 app.listen(8080, function(){
-        console.log('Servidor aguardando novas requisições...')
+        console.log('Nike Air Max 95 Triple White')
     })
