@@ -91,6 +91,22 @@ app.delete('/v1/controle-musicas/musica/', cors(), async function(request, respo
     }
 })
 
+app.put('/v1/controle-musicas/musica/:id', cors(), bodyParserJSON, async function (request, response) {
+    //Recebe o content-type da requisição
+    let contentType = headers['content-type']
+
+    //Recebe o ID da Música
+    let id = request.params.id
+    
+    //Recebe os dados do body
+    let dadosBody = request.body
+
+    let result = await controllerMusica.atualizarMusica(dadosBody, id, contentType)
+
+    response.status(result.status_code)
+    response.json(result)
+})
+
 app.listen(8080, function(){
         console.log('Nike Air Max 95 Triple White')
     })

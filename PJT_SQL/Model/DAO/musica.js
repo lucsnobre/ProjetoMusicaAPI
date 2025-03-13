@@ -50,14 +50,31 @@ console.log(sql)
 }
 
 //Função para atualizar uma música existente no Banco de Dados
-const updateMusica = async function(){
-
+const updateMusica = async function(musica){
+    try {
+        let sql = `update tb_musica set nome_musica     = '${musica.nome_musica}',
+                                        link            = '${musica.link}',
+                                        duracao         = '${musica.duracao}',
+                                        data_lancamento = '${musica.data_lancamento}',
+                                        foto_capa       = '${musica.foto_capa}',
+                                        letra           = '${musica.letra}'
+                                        
+                    where id=${musica.id_musica}`
+        let result = await prisma.$executeRawUnsafe(sql)
+        
+        if(result)
+            return true
+        else 
+            return false
+    } catch (error) {
+        return false
+    }
 }
 
-//Função para excluir uma música existe no Banco de Dados
+//Função para excluir uma música
 const deleteMusica = async function(){
     try {
-        let sql = 'DELETE FROM tb_musica WHERE id_musica = 2'
+        let sql = 'DELETE FROM tb_musica WHERE id_musica = 6'
 
         
         //Execta o Script SQL no BD e aguarda o retorno dos dados.

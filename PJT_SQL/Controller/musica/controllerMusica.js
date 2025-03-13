@@ -46,9 +46,45 @@ const inserirMusica = async function(musica, contentType){
 }
 
 //Função para atualizar uma música
-const atualizarMusica = async function(){
-    
+//Função para atualizar uma música
+const atualizarMusica = async function(musica, id_musica, contentType){
+    try {
+        if(String(contentType).toLowerCase() == 'application/json') {
+
+            if( musica.nome_musica      == undefined || musica.nome_musica              == ''        || musica.nome_musica              == null        || musica.nome_musica.length          > 80     ||
+                musica.link             == undefined || musica.link                     == ''        || musica.link                     == null        || musica.link.length                 > 200    ||
+                musica.duracao          == undefined || musica.duracao                  == ''        || musica.duracao                  == null        || musica.duracao.length              > 5      ||
+                musica.data_lancamento  == undefined || musica.data_lancamento          == ''        || musica.data_lancamento          == null        || musica.data_lancamento.length      > 10     ||
+                musica.foto_capa        == undefined || musica.foto_capa.length         > 200        ||
+                musica.letra            == undefined ||
+                id_musica               == ''        || id_musica == undefined                       || id_musica == null                              || isNaN(id_musica)                            || id_musica <= 0
+            ){
+                return MESSAGE.ERROR_REQUIRED_FIELDS;
+            } else {
+                //Validar se o ID existe no banco
+                let resultMusica = await buscarMusica(id_musica)
+
+                if (resultMusica.status_code == 200) {
+                    musica.id = id_musica
+                    let result = await musicaDAO.updateMusica(musica)
+
+                    if (result) {
+                        return MESSAGE.SUCESS_UPDATED_ITEM; // 200 
+                    } else {
+                        return MESSAGE.ERROR_INTERNAL_SERVER_MODEL; //500
+                    }
+                } else if (resultMusica.status_code == 404) {
+                    return MESSAGE.ERROR_NOT_FOUND; //404
+                }
+            }
+        } else {
+            return MESSAGE.ERROR_CONTENT_TYPE //415
+        }
+    } catch (error) {
+        return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER; //500
+    }
 }
+
 
 //Função para excluir uma música
 const excluirMusica = async function(id_musica) {
