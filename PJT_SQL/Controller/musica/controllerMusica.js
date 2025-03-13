@@ -59,31 +59,29 @@ const atualizarMusica = async function(musica, id_musica, contentType){
                 musica.letra            == undefined ||
                 id_musica               == ''        || id_musica == undefined                       || id_musica == null                              || isNaN(id_musica)                            || id_musica <= 0
             ){
-                return MESSAGE.ERROR_REQUIRED_FIELDS;
-            } else {
-                //Validar se o ID existe no banco
+                return MESSAGE.ERROR_REQUIRED_FIELDS //400
+            }else{
                 let resultMusica = await buscarMusica(id_musica)
 
-                if (resultMusica.status_code == 200) {
-                    musica.id = id_musica
-                    let result = await musicaDAO.updateMusica(musica)
+                if(resultMusica.status_code == 200){
+                    musica.id_musica = id_musica // Aqui estava "id", deveria ser "id_musica"
+                    let result = await musicaDAO.updateMusica(musica) // Adicionado "await"
 
-                    if (result) {
-                        return MESSAGE.SUCESS_UPDATED_ITEM; // 200 
-                    } else {
-                        return MESSAGE.ERROR_INTERNAL_SERVER_MODEL; //500
-                    }
-                } else if (resultMusica.status_code == 404) {
-                    return MESSAGE.ERROR_NOT_FOUND; //404
+                    if(result)
+                        return MESSAGE.SUCESS_UPDATED_ITEM
+                    else
+                        return MESSAGE.ERROR_INTERNAL_SERVER_MODEL
+                }else if(resultMusica.status_code == 404){
+                    return MESSAGE.ERROR_NOT_FOUND
                 }
             }
         } else {
-            return MESSAGE.ERROR_CONTENT_TYPE //415
+            return MESSAGE.ERROR_CONTENT_TYPE // 415
         }
     } catch (error) {
-        return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER; //500
+        return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER // 500
     }
-}
+} 
 
 
 //Função para excluir uma música
