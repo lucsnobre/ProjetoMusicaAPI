@@ -106,7 +106,7 @@ const selectByIdMusica = async function(){
         let result = await prisma.$queryRawUnsafe(sql)
 
         if (result) 
-            return result.map(row => row.id_musica) // Retorna apenas os IDs
+            return result.map(row => row.id_musica)
         else 
             return false
     } catch (error) {
