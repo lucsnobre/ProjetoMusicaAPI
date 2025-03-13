@@ -66,17 +66,18 @@ app.get('/v1/controle-musicas/musica', cors(), async function(request, response)
     response.json(result)
 })
 
-app.get('/v1/controle-musicas/musica/:search_id', cors(), async function(request, response) {
+app.get('/v1/controle-musicas/musica/:search_id/', cors(), async function(request, response) {
+    // Pega o ID da música da URL
+    let searchId = request.params.search_id;
 
-    let result = await controllerMusica.buscarMusica();
+    // Chama a função de buscar música com o ID fornecido
+    let result = await controllerMusica.buscarMusica(searchId);
 
-    if (result && result.status_code) {
-        response.status(result.status_code);
-        response.json(result);
-    } else {
-        response.status(500).json({ error: "Erro interno no servidor" });
-    }
+    // Retorna o resultado
+    response.status(result.status_code);
+    response.json(result);
 });
+
 
 app.delete('/v1/controle-musicas/musica/', cors(), async function(request, response) {
 

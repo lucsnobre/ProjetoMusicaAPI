@@ -55,9 +55,9 @@ const updateMusica = async function(){
 }
 
 //Função para excluir uma música existe no Banco de Dados
-const deleteMusica = async function(id_musica){
+const deleteMusica = async function(){
     try {
-        let sql = 'DELETE FROM tb_musica WHERE id_musica ='+id_musica
+        let sql = 'DELETE FROM tb_musica WHERE id_musica = 2'
 
         
         //Execta o Script SQL no BD e aguarda o retorno dos dados.
@@ -101,19 +101,20 @@ const selectAllMusica = async function(){
 //Função para buscar uma música pelo ID no Banco de Dados
 const selectByIdMusica = async function(id_musica){
     try {
-        let sql = 'SELECT * FROM tb_musica WHERE id_musica'+id_musica
+        let sql = `SELECT * FROM tb_musica WHERE id_musica = 3`;
         
-        let result = await prisma.$queryRawUnsafe(sql)
+        let result = await prisma.$queryRawUnsafe(sql);
 
-        if (result) 
-            return result.map(row => row.id_musica)
-        else 
-            return false
+        if (result && result.length > 0) {
+            return result; // Retorna todos os dados da música encontrada
+        } else {
+            return false; // Nenhuma música encontrada
+        }
     } catch (error) {
-        return false
+        return false;
     }
+};
 
-}
 
 module.exports = {
     insertMusica,

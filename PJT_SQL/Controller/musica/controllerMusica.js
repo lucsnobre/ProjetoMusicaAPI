@@ -53,10 +53,8 @@ const atualizarMusica = async function(){
 //Função para excluir uma música
 const excluirMusica = async function(id_musica) {
     try {
-        // Chamar a função que deleta a música pelo ID
         let dadosMusica = await musicaDAO.deleteMusica(id_musica)
 
-        // Verificar se a música foi deletada com sucesso
         if (dadosMusica) {
             return {
                 status: true,
@@ -64,10 +62,10 @@ const excluirMusica = async function(id_musica) {
                 message: "Música deletada com sucesso."
             }
         } else {
-            return MESSAGE.ERROR_NOT_FOUND // 404 - Música não encontrada
+            return MESSAGE.ERROR_NOT_FOUND // 404 
         }
     } catch (error) {
-        return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER // 500 - Erro no servidor
+        return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER // 500 
     }
 }
 
@@ -114,24 +112,27 @@ const listarMusica = async function(){
 const buscarMusica = async function(id_musica) {
     try {
         // Chamar a função que retorna a música pelo ID
-        let resultMusica = await musicaDAO.selectByIdMusica(id_musica);
-        if (resultMusica && typeof resultMusica === 'object') {
+        let resultMusica = await musicaDAO.selectByIdMusica(id_musica)
+
+        // Verificar se a função retornou um resultado válido
+        if (resultMusica && typeof resultMusica === 'object' && resultMusica.length > 0) {
             // Criar um objeto JSON para retornar a música encontrada
             let dadosMusica = {
                 status: true,
                 status_code: 200,
-                musica: resultMusica
-            };
-            return dadosMusica; // 200
+                musica: resultMusica 
+            }
+            return dadosMusica // 200
         } else {
-            // Mensagem de erro caso a música não seja encontrada
-            return MESSAGE.ERROR_NOT_FOUND; // 404
+            // Retornar mensagem de erro caso a música não seja encontrada
+            return MESSAGE.ERROR_NOT_FOUND // 404
         }
     } catch (error) {
-        return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER; // 500
+        // Retornar mensagem de erro interno do servidor em caso de exceção
+        return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER // 500
     }
+}
 
-};
 
 
 
