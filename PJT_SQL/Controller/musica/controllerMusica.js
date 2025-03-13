@@ -115,8 +115,6 @@ const buscarMusica = async function(id_musica) {
     try {
         // Chamar a função que retorna a música pelo ID
         let resultMusica = await musicaDAO.selectByIdMusica(id_musica);
-
-        // Verificar se a função retornou um resultado válido
         if (resultMusica && typeof resultMusica === 'object') {
             // Criar um objeto JSON para retornar a música encontrada
             let dadosMusica = {
@@ -126,11 +124,10 @@ const buscarMusica = async function(id_musica) {
             };
             return dadosMusica; // 200
         } else {
-            // Retornar mensagem de erro caso a música não seja encontrada
+            // Mensagem de erro caso a música não seja encontrada
             return MESSAGE.ERROR_NOT_FOUND; // 404
         }
     } catch (error) {
-        // Retornar mensagem de erro interno do servidor em caso de exceção
         return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER; // 500
     }
 
