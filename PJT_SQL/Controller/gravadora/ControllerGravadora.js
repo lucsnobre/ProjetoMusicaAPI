@@ -34,7 +34,10 @@ const buscarGravadora = (req, res) => {
 
 const inserirGravadora = async (gravadora) => {
     if (gravadora.nome && gravadora.nome != '' && gravadora.nome.length <= 100) {
-        let result = await gravadora.inserirGravadora(gravadora);
+        let result = await controllerGravadora.inserirGravadora(dadosBody);
+console.log(result);
+response.status(result.status_code).json(result);
+
 
         if (result)
             return MESSAGE.CREATED_ITEM;
@@ -44,6 +47,8 @@ const inserirGravadora = async (gravadora) => {
         return MESSAGE.ERROR_REQUIRED_FIELDS;
     }
 };
+
+
 
 
 // Atualizar gravadora
