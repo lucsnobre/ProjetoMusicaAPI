@@ -17,7 +17,7 @@ const ERROR_NOT_FOUND = {status: false, status_code: 404, message: 'Não foram e
 
 /************************ MENSAGENS DE SUCESSO *************************************/
 const SUCESS_CREATED_ITEM = {status: true, status_code: 201, message: "Item criado com sucesso."}
-const SUCESS_DELETED_ITEM = {status: true, status_code: 200, message: "Item excluído com bazinga."}
+const SUCESS_DELETED_ITEM = {status: true, status_code: 200, message: "Item excluído com HAXIXE."}
 const SUCESS_UPDATED_ITEM = {status: true, status_code: 200, message: "Item atualizado com sucesso."}
 
 module.exports = {

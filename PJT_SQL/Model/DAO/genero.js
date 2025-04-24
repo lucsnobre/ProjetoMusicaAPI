@@ -27,32 +27,27 @@ const insertGenero = async function (genero) {
 };
 
 // Atualizar gênero
-const updateGenero = async function (genero) {
-    try {
-        let sql = `
-            UPDATE tb_genero SET
-                nome = "${genero.nome_genero}"
-            WHERE id = ${genero.id}`;
-
-        let result = await prisma.$executeRawUnsafe(sql);
-        return result ? true : false;
-    } catch (error) {
-        console.error(error);
-        return false;
-    }
+const updateGenero = async (id, dados) => {
+    const sql = `UPDATE tb_genero SET nome = '${dados.nome}' WHERE id = ${id}`;
+    const result = await prisma.$executeRawUnsafe(sql);
+    return result;
 };
+
 
 // Deletar gênero
-const deleteGenero = async function (id) {
-    try {
-        let sql = `DELETE FROM tb_genero WHERE id = ${id}`;
-        let result = await prisma.$executeRawUnsafe(sql);
-        return result ? true : false;
-    } catch (error) {
-        console.error(error);
-        return false;
+const deleteGenero = async (id) => {
+    if (await generoDAO.selectGeneroByID(id)) {
+        let result = await generoDAO.deleteGenero(id);
+        if (result)
+            return MESSAGE.DELETE_ITEM_SUCCESS;
+        else
+            return MESSAGE.ERROR_INTERNAL_SERVER;
+    } else {
+        return MESSAGE.ERROR_NOT_FOUND;
     }
-};
+}
+
+
 
 // Listar todos os gêneros
 const selectAllGeneros = async function () {
@@ -64,7 +59,7 @@ const selectAllGeneros = async function () {
         console.error(error);
         return false;
     }
-};
+}
 
 // Buscar gênero por ID
 const selectByIdGenero = async function (id_genero) {

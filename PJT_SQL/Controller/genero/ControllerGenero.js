@@ -5,16 +5,22 @@
 /* Versão: 1.0                                                              */
 /****************************************************************************/
 
+const MESSAGE = require('../../../Módulo/config');
 const generoModel = require('../../Model/DAO/genero');
 
 // Listar todos os gêneros
-const listarGeneros = (req, res) => {
-    generoModel.selectAllGeneros()
-        .then(results => {
-            if (!results) return res.status(404).json({ msg: "Nenhum gênero encontrado" });
-            res.status(200).json(results);
-        })
-        .catch(err => res.status(500).json(err));
+const listarGeneros = async () => {
+    try {
+        const dados = await generoModel.selectAllGeneros();
+
+        if (dados && dados.length > 0) {
+            return { status_code: 200, generos: dados };
+        } else {
+            return { status_code: 404, msg: "Nenhum gênero encontrado" };
+        }
+    } catch (error) {
+        return { status_code: 500, msg: "Erro ao listar gêneros", error: error.message };
+    }
 };
 
 // Buscar gênero por ID
@@ -29,39 +35,83 @@ const buscarGenero = (req, res) => {
 };
 
 // Criar novo gênero
-const criarGenero = (req, res) => {
-    const novoGenero = req.body;
-    generoModel.insertGenero(novoGenero)
-        .then(result => {
-            if (result) res.status(201).json({ msg: "Gênero cadastrado com sucesso" });
-            else res.status(500).json({ msg: "Erro ao cadastrar gênero" });
-        })
-        .catch(err => res.status(500).json(err));
+const criarGenero = async (novoGenero) => {
+    try {
+        const result = await generoModel.insertGenero(novoGenero);
+
+        if (result) {
+            return {
+                status_code: 201,
+                message: 'Gênero cadastrado com sucesso',
+                dados: result
+            };
+        } else {
+            return {
+                status_code: 500,
+                message: 'Erro ao cadastrar gênero'
+            };
+        }
+    } catch (error) {
+        console.error('Erro ao criar gênero:', error);
+        return {
+            status_code: 500,
+            message: 'Erro interno no servidor',
+            error
+        };
+    }
 };
+
+
+
+
+
 
 // Atualizar gênero
-const atualizarGenero = (req, res) => {
-    const genero = req.body;
-    genero.id_genero = req.params.id;
+const atualizarGenero = async (id, dadosGenero) => {
+    try {
+        if (!id || isNaN(id))
+            return { status_code: 400, msg: "ID inválido" };
 
-    generoModel.updateGenero(genero)
-        .then(result => {
-            if (result) res.status(200).json({ msg: "Gênero atualizado com sucesso" });
-            else res.status(404).json({ msg: "Gênero não encontrado ou erro ao atualizar" });
-        })
-        .catch(err => res.status(500).json(err));
+        if (!dadosGenero.nome || dadosGenero.nome.trim() === '')
+            return { status_code: 400, msg: "Nome do gênero é obrigatório" };
+
+        const generoExistente = await generoModel.selectByIdGenero(id);
+        if (!generoExistente || generoExistente.length === 0)
+            return { status_code: 404, msg: "Gênero não encontrado" };
+
+        const result = await generoModel.updateGenero(id, dadosGenero);
+
+        if (result)
+            return { status_code: 200, msg: "Gênero atualizado com sucesso" };
+        else
+            return { status_code: 500, msg: "Erro ao atualizar o gênero" };
+
+    } catch (error) {
+        return { status_code: 500, msg: "Erro no servidor", error: error.message };
+    }
 };
+
 
 // Deletar gênero
-const deletarGenero = (req, res) => {
-    const id = req.params.id;
-    generoModel.deleteGenero(id)
-        .then(result => {
-            if (result) res.status(200).json({ msg: "Gênero deletado com sucesso" });
-            else res.status(404).json({ msg: "Gênero não encontrado ou erro ao deletar" });
-        })
-        .catch(err => res.status(500).json(err));
+const deletarGenero = async function (id) {
+    if (!id || isNaN(id)) {
+        return MESSAGE.ERROR_INVALID_ID;
+    }
+
+    let idGenero = await generoModel.selectByIdGenero(id);
+
+    if (idGenero) {
+        let result = await generoModel.deleteGenero(id);
+
+        if (result)
+            return MESSAGE.SUCCESS_DELETED_ITEM;
+        else
+            return MESSAGE.ERROR_INTERNAL_SERVER;
+    } else {
+        return MESSAGE.ERROR_NOT_FOUND;
+    }
 };
+
 
 module.exports = {
     listarGeneros,

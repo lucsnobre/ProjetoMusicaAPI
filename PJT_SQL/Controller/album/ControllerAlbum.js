@@ -31,13 +31,24 @@ const buscarAlbum = (req, res) => {
 // Criar novo álbum
 const criarAlbum = (req, res) => {
     const novoAlbum = req.body;
+
+    console.log('Corpo da requisição:', novoAlbum); // Para depurar
+
+    if (!novoAlbum || !novoAlbum.nome || !novoAlbum.lancamento || !novoAlbum.duracao || !novoAlbum.numero_faixas || !novoAlbum.id_artista) {
+        return res.status(400).json({ msg: "Todos os campos são obrigatórios." });
+    }
+
     albumModel.insertAlbum(novoAlbum)
         .then(result => {
-            if (result) res.status(201).json({ msg: "Álbum cadastrado com sucesso" });
-            else res.status(500).json({ msg: "Erro ao cadastrar álbum" });
+            if (result) {
+                res.status(201).json({ msg: "Álbum cadastrado com sucesso" });
+            } else {
+                res.status(500).json({ msg: "Erro ao cadastrar álbum" });
+            }
         })
         .catch(err => res.status(500).json(err));
 };
+
 
 // Atualizar álbum
 const atualizarAlbum = (req, res) => {

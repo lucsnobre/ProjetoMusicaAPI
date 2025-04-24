@@ -13,13 +13,13 @@ const insertArtista = async function (artista) {
     try {
         let sql = `
             INSERT INTO tb_artista (
-                nome_artista,
-                foto_artista,
-                biografia
+                nome,
+                biografia,
+                data_nascimento
             ) VALUES (
-                "${artista.nome_artista}",
-                "${artista.foto_artista}",
-                "${artista.biografia}"
+                "${artista.nome}",
+                "${artista.biografia}",
+                "${artista.data_nascimento}"
             )`;
 
         let result = await prisma.$executeRawUnsafe(sql);
@@ -35,10 +35,10 @@ const updateArtista = async function (artista) {
     try {
         let sql = `
             UPDATE tb_artista SET
-                nome_artista = "${artista.nome_artista}",
-                foto_artista = "${artista.foto_artista}",
-                biografia = "${artista.biografia}"
-            WHERE id_artista = ${artista.id_artista}`;
+                nome = "${artista.nome}",
+                biografia = "${artista.biografia}",
+                data_nascimento = "${artista.data_nascimento}"
+            WHERE id = ${artista.id}`;
 
         let result = await prisma.$executeRawUnsafe(sql);
         return result ? true : false;
@@ -51,7 +51,7 @@ const updateArtista = async function (artista) {
 // Deletar artista
 const deleteArtista = async function (id) {
     try {
-        let sql = `DELETE FROM tb_artista WHERE id_artista = ${id}`;
+        let sql = `DELETE FROM tb_artista WHERE id = ${id}`;
         let result = await prisma.$executeRawUnsafe(sql);
         return result ? true : false;
     } catch (error) {
@@ -63,7 +63,7 @@ const deleteArtista = async function (id) {
 // Listar todos os artistas
 const selectAllArtistas = async function () {
     try {
-        let sql = `SELECT * FROM tb_artista ORDER BY id_artista ASC`;
+        let sql = `SELECT * FROM tb_artista ORDER BY id ASC`;
         let result = await prisma.$queryRawUnsafe(sql);
         return result && result.length > 0 ? result : false;
     } catch (error) {
@@ -75,7 +75,7 @@ const selectAllArtistas = async function () {
 // Buscar artista por ID
 const selectByIdArtista = async function (id_artista) {
     try {
-        let sql = `SELECT * FROM tb_artista WHERE id_artista = ${id_artista}`;
+        let sql = `SELECT * FROM tb_artista WHERE id = ${id_artista}`;
         let result = await prisma.$queryRawUnsafe(sql);
         return result && result.length > 0 ? result : false;
     } catch (error) {
