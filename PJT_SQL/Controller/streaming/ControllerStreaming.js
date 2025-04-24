@@ -5,24 +5,24 @@
 /* Versão: 1.0                                                              */
 /****************************************************************************/
 
-const streamingModel = require('../../Model/DAO/streaming');
+const streamingModel = require('../../Model/DAO/streaming')
 
 // Listar todos os streamings
 const listarStreamings = (req, res) => {
     streamingModel.selectAllStreamings()
         .then(results => {
-            if (!results) return res.status(404).json({ msg: "Nenhum streaming encontrado" });
-            res.status(200).json(results);
+            if (!results) return res.status(404).json({ msg: "Nenhum streaming encontrado" })
+            res.status(200).json(results)
         })
-        .catch(err => res.status(500).json(err));
-};
+        .catch(err => res.status(500).json(err))
+}
 
 // Buscar streaming por ID
 const buscarStreaming = (req, res) => {
     const id = req.params.id;
     streamingModel.selectByIdStreaming(id)
         .then(result => {
-            if (!result) return res.status(404).json({ msg: "Streaming não encontrado" });
+            if (!result) return res.status(404).json({ msg: "Streaming não encontrado" })
             res.status(200).json(result[0]);
         })
         .catch(err => res.status(500).json(err));
