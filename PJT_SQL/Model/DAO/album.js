@@ -52,6 +52,7 @@ const insertAlbum = async function (album) {
       throw new Error(`Database error: ${error.message}`);
     }
   };
+
 //Função para atualizar uma música existente no Banco de Dados
 const updateAlbum = async function(album){
     try {
@@ -99,19 +100,25 @@ const deleteAlbum = async function(){
 
 
 //Função para retornar todas as músicas do Banco de Dados
-const selectAllAlbum = async function () {
+const selectAllAlbum = async function(){
     try {
-      console.log('Executing selectAllAlbum'); // Log start
-      const result = await prisma.tb_album.findMany({
-        orderBy: { id: 'asc' },
-      });
-      console.log('selectAllAlbum Result:', result); // Log result
-      return result; // Returns array (empty if no data)
+        let sql = 'select * from tb_album order by id asc'
+        
+        //Execta o Script SQL no BD e aguarda o retorno dos dados.
+        let result = await prisma.$queryRawUnsafe(sql)
+        
+        
+
+        if(result)
+            return result
+        else
+            return false
     } catch (error) {
-      console.error('DAO selectAllAlbum Error:', error); // Log error
-      throw new Error(`Database error: ${error.message}`);
+        
+        return false
     }
-  };
+
+}
 
 
 //Função para buscar uma música pelo ID no Banco de Dados

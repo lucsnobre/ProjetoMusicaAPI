@@ -13,51 +13,37 @@ const MESSAGE = require('../../../Módulo/config')
 const albumDAO = require('../../Model/DAO/album')
 
 //Função para inserir uma música
-const inserirAlbum = async function (albumData) {
+const inserirAlbum = async function(album, contentType){
     try {
-      // Validate input
-      if (
-        !albumData.nome ||
-        !albumData.lancamento ||
-        !albumData.duracao ||
-        !albumData.numero_faixas ||
-        !albumData.foto_capa
-      ) {
-        return {
-          status: false,
-          status_code: 400,
-          message: 'Campos obrigatórios não fornecidos.',
-        };
-      }
-  
-      console.log('Controller received:', albumData); // Log input
-  
-      // Call DAO
-      const result = await albumDAO.insertAlbum(albumData);
-  
-      // Check result
-      if (result) {
-        return {
-          status: true,
-          status_code: 201,
-          message: 'Item criado com sucesso.',
-        };
-      } else {
-        return {
-          status: false,
-          status_code: 500,
-          message: 'Erro ao inserir o álbum: nenhum registro criado.',
-        };
-      }
-    } catch (error) {
-      console.error('Controller insertAlbum Error:', error); // Log error
-      return {
-        status: false,
-        status_code: 500,
-        message: `Erro no controlador: ${error.message}`,
-      };
+
+        if(String(contentType).toLowerCase() == 'application/json')
+
+        {
+
+            if (
+                album.nome                  == undefined || album.nome                   == '' || album.nome                 == null || album.nome.length            > 80   ||
+                album.lancamento            == undefined || album.lancamento             == '' || album.lancamento           == null || album.lancamento.length      > 200  ||
+                album.duracao               == undefined || album.duracao                == '' || album.duracao              == null || album.duracao.length         > 5    ||
+                album.numero_faixas         == undefined || album.numero_faixas          == '' || album.numero_faixas        == null || album.numero_faixas.length   > 10   ||
+                album.foto_capa             == undefined || album.foto_capa.length       > 200
+            ){
+           return MESSAGE.ERROR_REQUIRED_FIELDS //400
+       }else{
+           let resultAlbum = albumDAO.insertAlbum(album)
+   
+           if (resultAlbum)
+               return MESSAGE.SUCESS_CREATED_ITEM //201
+           else
+               return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
+       }
+        }else{
+            return MESSAGE.ERROR_CONTENT_TYPE //415
+        }
+    } catch (error){
+        return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER //500
     }
-  };
+
+}
 
 const atualizarAlbum = async function(album, id, contentType){
     try {
@@ -117,44 +103,20 @@ const excluirAlbum = async function(id) {
 
 //Função para listar uma música
 const listarAlbum = async function () {
-    try {
-      console.log('Calling selectAllAlbum'); // Log start
-      const resultAlbum = await albumDAO.selectAllAlbum();
-  
-      console.log('Controller resultAlbum:', resultAlbum); // Log result
-  
-      if (Array.isArray(resultAlbum)) {
-        if (resultAlbum.length > 0) {
-          const dadosAlbum = {
-            status: true,
-            status_code: 200,
-            itens: resultAlbum.length,
-            musica: resultAlbum,
-          };
-          return dadosAlbum; // 200
-        } else {
-          return {
-            status: false,
-            status_code: 404,
-            message: 'Não foram encontrados itens para retorno.',
-          }; // 404
-        }
-      } else {
+    const dados = await albumDAO.selectAllAlbum();
+    if (dados.length > 0) {
         return {
-          status: false,
-          status_code: 500,
-          message: 'Erro interno: resultado inesperado do modelo.',
-        }; // 500
-      }
-    } catch (error) {
-      console.error('Controller listarAlbum Error:', error); // Log error
-      return {
-        status: false,
-        status_code: 500,
-        message: `Erro no controlador: ${error.message}`,
-      }; // 500
+            dadosAlbum.status = true
+            dadosAlbum.status_code = 200
+            dadosAlbum.itens = resultAlbum.length
+            dadosAlbum.album = resultAlbum
+        };
+    } else {
+        return MESSAGE.ERROR_NOT_FOUND;
     }
-  };
+};
+
+
 
 //Função para buscar uma música
 const buscarAlbum = async function(id) {
