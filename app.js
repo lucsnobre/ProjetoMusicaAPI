@@ -187,24 +187,29 @@ app.post('/v1/controle-musicas/album', cors(), bodyParserJSON, async function(re
     let contentType = request.headers['content-type'];
     let dadosBody = request.body;
 
-    let result = await controllerAlbum.criarAlbum(dadosBody, contentType);
+    let result = await controllerAlbum.inserirAlbum(dadosBody, contentType);
 
     response.status(result.status_code);
     response.json(result);
 });
 
-// Rota GET para listar álbuns
-app.get('/v1/controle-musicas/album', cors(), async function(request, response) {
-    let result = await controllerAlbum.listarAlbums();
+app.get('/v1/controle-musicas/album', cors(), async function (request, response) {
+    let result = await controllerAlbum.listarAlbum()
+    console.log("RESULTADO DO CONTROLLER:", result)
 
-    response.status(result.status_code);
-    response.json(result);
-});
+    if (result && result.status_code) {
+        response.status(result.status_code)
+        response.json(result)
+    } else {
+        response.status(500).json({ error: "Erro ao listar álbuns." })
+    }
+    
+})
 
 // Rota GET para buscar álbum por ID
 app.get('/v1/controle-musicas/album/:id', cors(), async function(request, response) {
     let id = request.params.id;
-    let result = await controllerAlbum.buscarAlbum(id);
+    let result = await controllerAlbum.listarAlbum(id);
 
     response.status(result.status_code);
     response.json(result);
