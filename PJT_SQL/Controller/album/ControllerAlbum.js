@@ -106,10 +106,10 @@ const listarAlbum = async function () {
     const dados = await albumDAO.selectAllAlbum();
     if (dados.length > 0) {
         return {
-            dadosAlbum.status = true
-            dadosAlbum.status_code = 200
-            dadosAlbum.itens = resultAlbum.length
-            dadosAlbum.album = resultAlbum
+            status: true,
+            status_code: 200,
+            quantidade: dados.length,
+            album: dados
         };
     } else {
         return MESSAGE.ERROR_NOT_FOUND;
