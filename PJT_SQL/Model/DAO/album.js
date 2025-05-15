@@ -20,7 +20,6 @@ const insertAlbum = async function(album){
                                           duracao, 
                                           numero_faixas,
                                           foto_capa,
-
                                         )
                 values                 ( 
                                           '${album.nome}',
