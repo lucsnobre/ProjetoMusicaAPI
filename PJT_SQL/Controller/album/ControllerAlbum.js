@@ -16,17 +16,22 @@ const albumDAO = require('../../Model/DAO/album.js')
 
 //Import das controllers
 const controllerArtista = require('../../Controller/artista/ControllerArtista.js')
+const controllerMusica = require('../../Controller/musica/controllerMusica.js')
+const controllerGenero = require('../../Controller/genero/ControllerGenero.js')
 
 //Função para inserir uma nova música
 const inserirAlbum = async function (album, contentType) {
     try {
 
         if (String(contentType).toLowerCase() == 'application/json') {
-            if (album.nome == '' || album.nome == null || album.nome == undefined || album.nome.length > 45 ||
-                album.lancamento == '' || album.lancamento == null || album.lancamento == undefined ||
-                album.duracao == '' || album.duracao == null || album.duracao == undefined ||
-                album.numero_faixas == '' || album.numero_faixas == null || album.duracao == undefined ||
-                album.id_artista == '' || album.id_artista == null || album.id_artista == undefined
+            if (album.nome == ''          || album.nome == null            || album.nome == undefined || album.nome.length > 45           ||
+                album.lancamento == ''    || album.lancamento == null                                 || album.lancamento == undefined    ||
+                album.duracao == ''       || album.duracao == null                                    || album.duracao == undefined       ||
+                album.numero_faixas == '' || album.numero_faixas == null                              || album.duracao == undefined       ||
+                album.id_artista == ''    || album.id_artista == null                                 || album.id_artista == undefined    ||
+                album.id_genero == ''     || album.id_genero == null                                  || album.id_genero == undefined     ||
+                album.id_musica == ''     || album.id_musica == null                                  || album.id_musica == undefined
+
 
 
             ) {
@@ -56,40 +61,44 @@ const inserirAlbum = async function (album, contentType) {
 const atualizarAlbum = async function (id, album, contentType) {
     try {
         if (String(contentType).toLowerCase() == 'application/json') {
-            if (album.nome == '' || album.nome == null || album.nome == undefined || album.nome.length > 45 ||
-                album.lancamento == '' || album.lancamento == null || album.lancamento == undefined ||
-                album.duracao == '' || album.duracao == null || album.duracao == undefined ||
-                album.numero_faixas == '' || album.numero_faixas == null || album.duracao == undefined ||
-                album.id_artista == '' || album.id_artista == null ||
-                id == '' || id == undefined || id == null || isNaN(id)
-            ) {
-                return message.ERROR_REQUIRED_FIELDS //Status code 400
+            if (album.nome == ''          || album.nome == null            || album.nome == undefined || album.nome.length > 45           ||
+                album.lancamento == ''    || album.lancamento == null                                 || album.lancamento == undefined    ||
+                album.duracao == ''       || album.duracao == null                                    || album.duracao == undefined       ||
+                album.numero_faixas == '' || album.numero_faixas == null                              || album.duracao == undefined       ||
+                album.id_artista == ''    || album.id_artista == null                                 || album.id_artista == undefined    ||
+                album.id_genero == ''     || album.id_genero == null                                  || album.id_genero == undefined     ||
+                album.id_musica == ''     || album.id_musica == null                                  || album.id_musica == undefined
+
+
+
+            )  {
+    return message.ERROR_REQUIRED_FIELDS //Status code 400
+} else {
+    //Verifica se o ID existe no BD
+    let result = await albumDAO.selectByIDAlbum(id)
+
+    if (result != false || typeof (result) == 'object') {
+        if (result.length > 0) {
+            //Update
+
+            //Adiciona o atributo do ID no JSON com os dados recebidos no corpo da requisição
+            album.id = id
+            let resultAlbum = await albumDAO.updateAlbum(album)
+            if (resultAlbum) {
+                return message.SUCESS_UPDATED_ITEM //200
             } else {
-                //Verifica se o ID existe no BD
-                let result = await albumDAO.selectByIDAlbum(id)
-
-                if (result != false || typeof (result) == 'object') {
-                    if (result.length > 0) {
-                        //Update
-
-                        //Adiciona o atributo do ID no JSON com os dados recebidos no corpo da requisição
-                        album.id = id
-                        let resultAlbum = await albumDAO.updateAlbum(album)
-                        if (resultAlbum) {
-                            return message.SUCESS_UPDATED_ITEM //200
-                        } else {
-                            return message.ERROR_NOT_FOUND //404
-                        }
-                    }
-
-                }
+                return message.ERROR_NOT_FOUND //404
             }
-        } else {
-            return message.ERROR_CONTENT_TYPE //415
         }
-    } catch (error) {
-        return message.ERROR_INTERNET_SERVER_CONTROLLER //500
+
     }
+}
+        } else {
+    return message.ERROR_CONTENT_TYPE //415
+}
+    } catch (error) {
+    return message.ERROR_INTERNET_SERVER_CONTROLLER //500
+}
 }
 
 
