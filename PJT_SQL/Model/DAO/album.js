@@ -5,127 +5,129 @@
 /*Versão: 1.0                                                               */
 /****************************************************************************/
 
-//Import da biblioteca do prisma cliente para realizar as ações no BD
+//Import da biblioteca do prisma client para realizar as ações no BD
 const { PrismaClient } = require('@prisma/client')
 
-//Instância da classe do Prisma Client (cria um objeto)
+//Instancia da classe do prima client (cria um objeto)
 const prisma = new PrismaClient()
 
-//Função para inserir um novo genero
-const insertNovoAlbum = async function(album){
+//Função para inserir um novo album
+const insertAlbum = async function(album){
     try {
+      let sql = `insert into tb_album (
+                                          nome,
+                                          lancamento, 
+                                          duracao, 
+                                          numero_faixas,
+                                          foto_capa,
 
-    let sql = `insert into tb_album
-    (   nome,
-        data_lancamento,
-        duracao,
-        numero_faixas,
-        foto_capa,
-        id_artista)
-    values(  '${album.nome}',
-             '${album.lancamento}',
-             '${album.duracao}',
-             '${album.numero_faixas}',
-             '${album.foto_capa}',
-             '${album.id_artista}')`
-    //Executa o script SQL no banco de dados e AGUARDA o resultado (retorna um true ou false)
-    //$executeRawUnsafe = Usado para quando não há uma devolutiva do banco (POST, UPDATE, DELETE)
-    let result = await prisma.$executeRawUnsafe(sql)
+                                        )
+                values                 ( 
+                                          '${album.nome}',
+                                          '${album.lancamento}',
+                                          '${album.duracao}', 
+                                          '${album.numero_faixas}',
+                                          '${album.foto_capa}  
+                                        )`
 
-    if(result)
-        return true
-    else
-        return false //Bug no banco de dados
+      //Executa o script SQL no bancod e dados e aguarda o resultado final (true ou false)
+      let result = await prisma.$executeRawUnsafe(sql)
 
-    } catch(error){
-        return false //Bug de programação.
+      if (result)
+          return true
+      else
+          return false //Bug no Banco de Dados
+
+    } catch (error){
+      return false //Bug de programação
     }
-
+  
 }
 
-//Função para atualizar uma genero já existente
+//Função para atualizar um album já existente
 const updateAlbum = async function(album){
-try {
-    let sql = `update tb_album set 
-        nome            =             '${album.nome}',
-        data_lancamento =             '${album.lancamento}',
-        duracao         =             '${album.duracao}',
-        numero_faixas   =             '${album.numero_faixas}',
-        foto_capa       =             '${album.foto_capa}',
-        id_artista      =             '${album.id_artista}'
-        where id        =              ${album.id}`
+  try {
+    let sql = `update tbl_albuns set      nome                = '${album.nome}',
+                                          lancamento            = '${album.capa_url}', 
+                                          duracao     = '${album.data_lancamento}', 
+                                          numero_faixas            = '${album.id_banda}',
+                                          foto_capa = '${album.foto_capa}',
+                                          id_genero = '${album.id_genero}',
+                                          id_musica = '${album.id_musica}',
+                                          id_premio = '${album.id_premio}',
+                                          id_artista = '${album.id_artista}'
+                                  where id_album = ${album.id}`
 
     let result = await prisma.$executeRawUnsafe(sql)
-    
-    if(result)
-        return true //Pega os bag do banco e manda pa nois
+
+    if (result)
+      return true
     else
-        return false //Deu pau em algo do banco
-
-} catch (error) {
-    return false //Bug de Programação
+      return false                    
+  } catch (error) {
+    return false
+  }
 }
 
-}
-
-//Função para excluir um genero que já existe
+//Função para excluir um album já existente
 const deleteAlbum = async function(id){
-    try {
-        //Script SQL
-        let sql = `delete from tb_album where id = ${id}`
-    
-        //$executeRawUnsafe = Usado para quando não há uma devolutiva do banco (POST, UPDATE, DELETE)
-        let result = await prisma.$executeRawUnsafe(sql)
-    
-        if(result)
-            return true //Retorna os dados do banco
-        else
-            return false //Bug no banco de dados
-    
-        } catch(error){
-            return false //Bug de programação.
-        }
+  try {
+    //Script SQL
+    let sql = `delete from tbl_albuns where id_album = ${id}`
+
+    //Encaminha o script SQL para o Banco de Dados
+    let result = await prisma.$executeRawUnsafe(sql)
+
+    if(result)
+      return true //Retorna true caso tenha dado certo
+    else 
+      return false
+  } catch (error) {
+    return false
+  }
 }
 
-//Função para retonar todas as músicas do Banco
-const selectAllAlbum = async function(){
+//Função para retornar todas os albuns do BD
+const selectAllAlbuns = async function(){
     try {
-        //Script SQL
-        let sql = 'select * from tb_album order by id desc'
-    
-        //Executa o script SQL no banco de dados e AGUARDA (retorna apenas um false)
-        //$queryRawUnsafe = Utilizado para quando há uma devolutiva do banco (Select)
-        let result = await prisma.$queryRawUnsafe(sql)
-    
-        if(result)
-            return result //Retorna os dados do banco
-        else
-            return false //Bug no banco de dados
-    
-        } catch(error){
-            return false //Bug de programação.
-        }
 
+      //Script SQL
+      let sql = 'select * from tb_album order by id_album desc'
 
-}
+      //Encaminha o script SQL para o Banco de Dados
+      let result = await prisma.$queryRawUnsafe(sql)
 
-//Função para buscar uma música pelo ID
-const selectByIDAlbum = async function (id) {
-    try {
-        let sql = `SELECT * FROM tb_album WHERE id = ${id}`;
-        let result = await prisma.$queryRawUnsafe(sql);
-        return result && result.length > 0 ? result : false;
+      if(result)
+        return result //Retorna os dados do banco
+      else 
+        return false
     } catch (error) {
-        console.error(error);
-        return false;
+      return false
     }
-};
+}
 
+//Função para buscar uma album pelo ID
+const selectByIdAlbum = async function(id){
+  try {
+    //Script SQL
+    let sql = `select * from tbl_albuns where id_album = ${id}`
+
+    //Encaminha o script SQL para o Banco de Dados
+    let result = await prisma.$queryRawUnsafe(sql)
+
+    if(result)
+      return result //Retorna os dados do banco
+    else 
+      return false
+  } catch (error) {
+    return false
+  }
+}
 
 module.exports = {
-    insertNovoAlbum,
+    insertAlbum,
     updateAlbum,
     deleteAlbum,
-    selectAllAlbum,
-    selectByIDAlbum
+    selectAllAlbuns,
+    selectByIdAlbum
 }

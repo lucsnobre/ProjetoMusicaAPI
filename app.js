@@ -76,7 +76,7 @@ app.get('/v1/controle-musicas/musica', cors(), async function(request, response)
     response.json(result)
 })
 
-app.get('/v1/controle-musicas/musica/:search_id/', cors(), async function(request, response) {
+app.get('/v1/controle-musicas/musica/:search_id', cors(), async function(request, response) {
     // Pega o ID da música da URL
     let searchId = request.params.search_id;
 

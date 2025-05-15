@@ -8,238 +8,203 @@
 //Import do arquivo de mensagens e status code
 const message = require('../../../Módulo/config.js')
 
-
 //Import do DAO para realizar o CRUD no Banco de dados
 const albumDAO = require('../../Model/DAO/album.js')
 
+//Import das controller necessárias para fazer os relacionamentos
+const controllerArtista = require('../../../PJT_SQL/Controller/artista/ControllerArtista.js')
 
+// Função para inserir um novo album
+const inserirAlbum = async function (album, contentType){
 
-//Import das controllers
-const controllerArtista = require('../../Controller/artista/ControllerArtista.js')
-const controllerMusica = require('../../Controller/musica/controllerMusica.js')
-const controllerGenero = require('../../Controller/genero/ControllerGenero.js')
-
-//Função para inserir uma nova música
-const inserirAlbum = async function (album, contentType) {
     try {
+        if (String(contentType).toLowerCase() == 'application/json'){
 
-        if (String(contentType).toLowerCase() == 'application/json') {
-            if (album.nome == ''          || album.nome == null            || album.nome == undefined || album.nome.length > 45           ||
-                album.lancamento == ''    || album.lancamento == null                                 || album.lancamento == undefined    ||
-                album.duracao == ''       || album.duracao == null                                    || album.duracao == undefined       ||
-                album.numero_faixas == '' || album.numero_faixas == null                              || album.duracao == undefined       ||
-                album.id_artista == ''    || album.id_artista == null                                 || album.id_artista == undefined    ||
-                album.id_genero == ''     || album.id_genero == null                                  || album.id_genero == undefined     ||
-                album.id_musica == ''     || album.id_musica == null                                  || album.id_musica == undefined
+            // Validação dos campos obrigatórios e limites de tamanho
+            if (
+                album.nome             == ""   || album.nome              == null         || album.nome          == undefined       || album.nome.length          > 45    ||
+                album.lancamento       == ""   || album.lancamento        == null         || album.lancamento    == undefined       ||
+                album.duracao          == ""   || album.duracao           == null         || album.duracao       == undefined       || album.duracao.length       > 10    ||
+                album.numero_faixas    == ""   || album.numero_faixas     == null         || album.numero_faixas == undefined       || album.numero_faixas.length > 10    ||
+                album.foto_capa        == ""   || album.foto_capa         == null         || album.foto_capa     == undefined       || album.foto_capa.length     > 10    ||
+                album.id_genero        == ""   || album.id_genero         == undefined    ||
+                album.id_musica        == ""   || album.id_musica         == undefined    ||
+                album.id_premio        == ""   || album.id_premio         == undefined    ||
+                album.id_artista       == ""   || album.id_artista         == undefined  
+            ) { 
+                return message.ERROR_REQUIRED_FIELDS // status code 400
+            } else {
+                // Encaminha os dados para o DAO realizar o insert
+                let resultAlbum = await albumDAO.insertAlbum(album)
 
+                if (resultAlbum) {
+                    return message.SUCESS_CREATED_ITEM // 201
+                } else {
+                    return message.ERROR_INTERNAL_SERVER_MODEL // 500
+                }
+            }
+        } else {
+            return message.ERROR_CONTENT_TYPE // 415
+        }
+    } catch (error) {
+        return message.ERROR_INTERNAL_SERVER_CONTROLLER // 500
+    }
+}
 
+// Função para atualizar um album
+const atualizarAlbum = async function (id, album, contentType){
+    try {
+        if (String(contentType).toLowerCase() == 'application/json'){
 
+            // Validação dos campos obrigatórios e limites de tamanho
+            if (
+                album.nome             == ""   || album.nome              == null         || album.nome          == undefined       || album.nome.length          > 45    ||
+                album.lancamento       == ""   || album.lancamento        == null         || album.lancamento    == undefined       ||
+                album.duracao          == ""   || album.duracao           == null         || album.duracao       == undefined       || album.duracao.length       > 10    ||
+                album.numero_faixas    == ""   || album.numero_faixas     == null         || album.numero_faixas == undefined       || album.numero_faixas.length > 10    ||
+                album.foto_capa        == ""   || album.foto_capa         == null         || album.foto_capa     == undefined       || album.foto_capa.length     > 10    ||
+                album.id_         == ""   || album.id_banda          == undefined
             ) {
-                return message.ERROR_REQUIRED_FIELDS //Status code 400
-            } else {
-                //Encaminhando os dados da música para o DAO realizar o insert no Banco de dados
-                let result = await albumDAO.insertNovoAlbum(album)
+                return message.ERROR_REQUIRED_FIELDS //status code 400
+            }else {
+                //Verifica se o ID existe no Banco de Dados
+                let result = await albumDAO.selectByIdAlbum(id)
 
-                if (result) {
-                    return message.SUCESS_CREATED_ITEM //201
-                } else {
-                    return message.ERROR_INTERNAL_SERVER_MODEL //500 que retorna caso haja erro na MODEL
-                }
+                if (result != false || typeof(result) == 'object'){
+                    if (result.length > 0){
+                        //update
 
-            }
-        } else {
-            return message.ERROR_CONTENT_TYPE //415 que retorna o erro do tipo de conteúdo do header
-        }
-    } catch (error) {
-        return message.ERROR_INTERNAL_SERVER_CONTROLLER //500 que retorna caso haja erro CONTROLLER
-    }
+                        //Adiciona o atributo do ID no JSON com s dados recebidos no corpo da requisição
+                        album.id = id
+                        let resultAlbum = await albumDAO.updateAlbum(album)
 
-
-}
-
-//Função para atulizar uma música existente
-const atualizarAlbum = async function (id, album, contentType) {
-    try {
-        if (String(contentType).toLowerCase() == 'application/json') {
-            if (album.nome == ''          || album.nome == null            || album.nome == undefined || album.nome.length > 45           ||
-                album.lancamento == ''    || album.lancamento == null                                 || album.lancamento == undefined    ||
-                album.duracao == ''       || album.duracao == null                                    || album.duracao == undefined       ||
-                album.numero_faixas == '' || album.numero_faixas == null                              || album.duracao == undefined       ||
-                album.id_artista == ''    || album.id_artista == null                                 || album.id_artista == undefined    ||
-                album.id_genero == ''     || album.id_genero == null                                  || album.id_genero == undefined     ||
-                album.id_musica == ''     || album.id_musica == null                                  || album.id_musica == undefined
-
-
-
-            )  {
-    return message.ERROR_REQUIRED_FIELDS //Status code 400
-} else {
-    //Verifica se o ID existe no BD
-    let result = await albumDAO.selectByIDAlbum(id)
-
-    if (result != false || typeof (result) == 'object') {
-        if (result.length > 0) {
-            //Update
-
-            //Adiciona o atributo do ID no JSON com os dados recebidos no corpo da requisição
-            album.id = id
-            let resultAlbum = await albumDAO.updateAlbum(album)
-            if (resultAlbum) {
-                return message.SUCESS_UPDATED_ITEM //200
-            } else {
-                return message.ERROR_NOT_FOUND //404
-            }
-        }
-
-    }
-}
-        } else {
-    return message.ERROR_CONTENT_TYPE //415
-}
-    } catch (error) {
-    return message.ERROR_INTERNET_SERVER_CONTROLLER //500
-}
-}
-
-
-
-//Função para excluir um artista existente.
-const excluirAlbum = async function (id) {
-    try {
-        if (id == '' || id == undefined || id == null || isNaN(id)) {
-            return message.ERROR_REQUIRE_FIELDS //400
-        } else {
-
-            //Antes de excluir, estamos verificando se existe este ID no BD
-            let resultAlbum = await albumDAO.selectByIDAlbum(id)
-            if (resultAlbum != false || typeof (resultAlbum) == 'object') {
-                if (resultAlbum.length > 0) {
-                    //Delete
-                    let result = await albumDAO.deleteAlbum(id)
-
-                    if (result) {
-                        return message.SUCESS_DELETED_ITEM //200
-                    } else {
-                        return message.ERROR_INTERNET_SERVER_MODEL //500
+                        if(resultAlbum){
+                            return message.SUCESS_UPDATED_ITEM //200
+                        }else {
+                            return message.ERROR_INTERNAL_SERVER_MODEL //500
+                        }
+                    }else{
+                        return message.ERROR_NOT_FOUND
                     }
-                } else {
-                    return message.ERROR_NOT_FOUND //404
                 }
-            } else {
-                return message.ERROR_INTERNET_SERVER_MODEL //500
             }
-
+        }else {
+            return message.ERROR_CONTENT_TYPE //415
         }
-    } catch (error) {
-        //Sempre que há problemas na controller
-        return message.ERROR_INTERNET_SERVER_CONTROLLER //500
-    }
-}
-
-//Função para retornar uma lista de músicas
-const listarAlbum = async function () {
-
-    let arrayAlbum = []
-
-
-    //Objeto JSON
-    let dadosAlbum = {}
-
-    try {
-        let result = await albumDAO.selectAllAlbum()
-
-        if (result != false || typeof (result) == 'object') {
-            if (result.length > 0) {
-                //Cria um JSON para colocar o array de músicas
-                dadosAlbum.status = true,
-                    dadosAlbum.status_code = 200,
-                    dadosAlbum.items = result.length
-
-
-                //Percorrer o array de filmes para pegar cada ID de classificação
-                // e descobrir quais os dados da classificação
-
-                // resultFilme.forEach( async function(itemFilme){
-                //Precisamos utilizar o for of, pois o foreach não consegue trabalhar com 
-                // requisições async com await
-                for (const itemAlbum of result) {
-                    /* Monta o objeto da classificação para retornar no Filme (1XN) */
-
-                    //Busca os dados da classificação na controller de classificacao
-                    let dadosArtistas = await controllerArtista.buscarArtista(itemAlbum.id_artista)
-
-                    //Adiciona um atributo classificação no JSON de filmes e coloca os dados da classificação
-                    itemAlbum.artista = dadosArtistas.artistas
-
-                    delete itemAlbum.id_artista
-                    /* */
-
-                    arrayAlbum.push(itemAlbum)
-                }
-
-                dadosAlbum.albuns = arrayAlbum
-
-                return dadosAlbum
-
-            } else {
-                return message.ERROR_NOT_FOUND //404
-            }
-        } else {
-            return message.ERROR_INTERNAL_SERVER_MODEL //500
-        }
-
     } catch (error) {
         return message.ERROR_INTERNAL_SERVER_CONTROLLER //500
     }
 }
 
-//Função para retornar um Artista pelo seu ID
-const buscarAlbum = async function (id) {
+// Função para excluir um album
+const excluirAlbum = async function (id){
     try {
-
-        let arrayAlbum = []
-
-        if (id == '' || id == undefined || id == null || isNaN(id)) {
+        if (id == '' || id == undefined || id == null || isNaN(id)){
             return message.ERROR_REQUIRED_FIELDS //400
-        } else {
+        }else {
+            //Antes de excluir, estamos verificando se existe esse ID
+            let resultAlbum = await albumDAO.selectByIdAlbum(id)
 
-            //Objeto JSON
-            let dadosAlbum = {}
-            let result = await albumDAO.selectByIDAlbum(id)
+            if(resultAlbum != false || typeof(resultAlbum) == 'object'){
+                if(resultAlbum.length > 0){
+                    let result = await albumDAO.deleteAlbum(id)
 
-            if (result != false || typeof (result) == 'object') {
-                if (result.length > 0) {
-                    //Cria um JSON para colocar o array de músicas
-                    dadosAlbum.status = true,
-                        dadosAlbum.status_code = 200
-                    // dadosAlbum.usuarios = result
-
-
-                    //Percorrer o array de filmes para pegar cada ID de classificação
-                    // e descobrir quais os dados da classificação
-
-                    // resultFilme.forEach( async function(itemFilme){
-                    //Precisamos utilizar o for of, pois o foreach não consegue trabalhar com 
-                    // requisições async com await
-                    for (const itemAlbum of result) {
-                        /* Monta o objeto da classificação para retornar no Filme (1XN) */
-                        //Busca os dados da classificação na controller de classificacao
-                        let dadosArtistas = await controllerArtista.buscarArtista(itemAlbum.id_artista)
-                        //Adiciona um atributo classificação no JSON de filmes e coloca os dados da classificação
-                        itemAlbum.artista = dadosArtistas.artistas
-                        delete itemAlbum.id_artista
-                        /* */
-
-                        arrayAlbum.push(itemAlbum)
+                    if (result){
+                        return message.SUCESS_DELETED_ITEM //200
+                    }else {
+                        return message.ERROR_INTERNAL_SERVER_MODEL //500
                     }
-
-                    dadosAlbum.album = arrayAlbum
-
-                    return dadosAlbum //200
-                } else {
+                }else {
                     return message.ERROR_NOT_FOUND //404
                 }
-            } else {
+            }else {
+                return message.ERROR_INTERNAL_SERVER_MODEL //500
+            }
+        }
+    } catch (error) {
+        return message.ERROR_INTERNAL_SERVER_CONTROLLER //500
+    }
+}
+
+// Função para retornar uma lista de albuns
+const listarAlbuns = async function (){
+    try {
+        let arrayAlbuns = []
+
+        //Criando um objeto JSON
+        let dadosAlbuns = {}
+
+        //Chama a função para retornar as bandas do Banco de Dados
+        let resultAlbum = await albumDAO.selectAllAlbuns()
+
+        if(resultAlbum != false || typeof(resultAlbum) == 'object'){
+            if(resultAlbum.length > 0){
+
+                //Cria um JSON para colocar o ARRAY de integrantes
+                dadosAlbuns.status = true,
+                dadosAlbuns.status_code = 200,
+                dadosAlbuns.items = resultAlbum.length
+
+                for(const itemAlbum of resultAlbum){
+                    let dadosBanda = await controllerBanda.buscarBanda(itemAlbum.id_banda)
+                    itemAlbum.banda = dadosBanda.bands
+                    delete itemAlbum.id_banda
+
+                    arrayAlbuns.push(itemAlbum)
+                }
+
+                dadosAlbuns.albuns = arrayAlbuns
+
+                return dadosAlbuns
+            }else{
+                return message.ERROR_NOT_FOUND //404
+            }
+        }else {
+            return message.ERROR_INTERNAL_SERVER_MODEL //500
+        }
+    } catch (error) {
+        return message.ERROR_INTERNAL_SERVER_CONTROLLER //500
+    }
+}
+
+// Função para retornar um album pelo ID
+const buscarAlbum = async function (id){
+    try {
+        if (id == '' || id == undefined || id == null || isNaN(id)){
+            return message.ERROR_REQUIRED_FIELDS
+        }else{
+            let arrayAlbuns = []
+
+            //Criando um objeto JSON
+            let dadosAlbuns = {}
+
+            //Chama a função para retornar os albuns do Banco de Dados
+            let resultAlbum = await albumDAO.selectByIdAlbum(id)
+
+            if(resultAlbum != false || typeof(resultAlbum) == 'object'){
+                if(resultAlbum.length > 0){
+
+                //Cria um JSON para colocar o ARRAY de integrantes
+                dadosAlbuns.status = true,
+                dadosAlbuns.status_code = 200,
+                dadosAlbuns.items = resultAlbum.length
+
+                for(const itemAlbum of resultAlbum){
+
+                    let dadosBanda = await controllerBanda.buscarBanda(itemAlbum.id_banda)
+                    itemAlbum.banda = dadosBanda.nome_banda
+                    delete itemAlbum.id_banda
+
+                    arrayAlbuns.push(itemAlbum)
+                }
+
+                dadosAlbuns.albuns = arrayAlbuns
+
+                return  dadosAlbuns
+                }else{
+                    return message.ERROR_NOT_FOUND //404
+                }
+            }else {
                 return message.ERROR_INTERNAL_SERVER_MODEL //500
             }
         }
@@ -250,11 +215,10 @@ const buscarAlbum = async function (id) {
 
 
 
-
 module.exports = {
     inserirAlbum,
     atualizarAlbum,
     excluirAlbum,
-    listarAlbum,
+    listarAlbuns,
     buscarAlbum
 }
