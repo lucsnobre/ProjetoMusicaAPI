@@ -1,82 +1,125 @@
 /****************************************************************************/
-/* Objetivo: Model responsável pelo CRUD de dados de gênero no BD           */
+/* Objetivo: Model responsável pelo CRUD de dados de gravadora no BD       */
 /* Data: 10/04/2025                                                         */
 /* Autor: Cachorrada                                                        */
 /* Versão: 1.0                                                              */
 /****************************************************************************/
 
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+//Import da biblioteca do prisma cliente para realizar as ações no BD
+const { PrismaClient } = require('@prisma/client')
 
-// Inserir novo gênero
-const insertGenero = async function (genero) {
+//Instância da classe do Prisma Client (cria um objeto)
+const prisma = new PrismaClient()
+
+
+//Função para inserir um novo genero
+const insertNovoGenero = async function(genero){
     try {
-        let sql = `
-            INSERT INTO tb_genero (
-                nome
-            ) VALUES (
-                "${genero.nome}"
-            )`;
 
-        let result = await prisma.$executeRawUnsafe(sql);
-        return result ? true : false;
-    } catch (error) {
-        console.error(error);
-        return false;
+    let sql = `insert into tb_genero(nome)values('${genero.nome}')`
+
+    //Executa o script SQL no banco de dados e AGUARDA o resultado (retorna um true ou false)
+    //$executeRawUnsafe = Usado para quando não há uma devolutiva do banco (POST, UPDATE, DELETE)
+    let result = await prisma.$executeRawUnsafe(sql)
+
+    if(result)
+        return true
+    else
+        return false //Bug no banco de dados
+
+    } catch(error){
+        return false //Bug de programação.
     }
-};
 
-// Atualizar gênero
-const updateGenero = async (id, dados) => {
-    const sql = `UPDATE tb_genero SET nome = '${dados.nome}' WHERE id = ${id}`;
-    const result = await prisma.$executeRawUnsafe(sql);
-    return result;
-};
+}
 
+//Função para atualizar uma genero já existente
+const updateGenero = async function(genero){
+try {
+    let sql = `update tb_genero set 
+        nome =                  '${genero.nome}'
+    where id =                   ${genero.id}`
 
-// Deletar gênero
-const deleteGenero = async (id) => {
-    if (await generoDAO.selectGeneroByID(id)) {
-        let result = await generoDAO.deleteGenero(id);
-        if (result)
-            return MESSAGE.DELETE_ITEM_SUCCESS;
+    let result = await prisma.$executeRawUnsafe(sql)
+    
+    if(result)
+        return true //Pega os bag do banco e manda pa nois
+    else
+        return false //Deu pau em algo do banco
+
+} catch (error) {
+    return false //Bug de Programação
+}
+
+}
+
+//Função para excluir um genero que já existe
+const deleteGenero = async function(id){
+    try {
+        //Script SQL
+        let sql = `delete from tb_genero where id = ${id}`
+    
+        //$executeRawUnsafe = Usado para quando não há uma devolutiva do banco (POST, UPDATE, DELETE)
+        let resultGenero = await prisma.$executeRawUnsafe(sql)
+    
+        if(resultGenero)
+            return true //Retorna os dados do banco
         else
-            return MESSAGE.ERROR_INTERNAL_SERVER;
-    } else {
-        return MESSAGE.ERROR_NOT_FOUND;
-    }
+            return false //Bug no banco de dados
+    
+        } catch(error){
+            return false //Bug de programação.
+        }
 }
 
-
-
-// Listar todos os gêneros
-const selectAllGeneros = async function () {
+//Função para retonar todas as músicas do Banco
+const selectAllGeneros = async function(){
     try {
-        let sql = `SELECT * FROM tb_genero ORDER BY id ASC`;
-        let result = await prisma.$queryRawUnsafe(sql);
-        return result && result.length > 0 ? result : false;
-    } catch (error) {
-        console.error(error);
-        return false;
-    }
+        //Script SQL
+        let sql = 'select * from tb_genero order by id desc'
+    
+        //Executa o script SQL no banco de dados e AGUARDA (retorna apenas um false)
+        //$queryRawUnsafe = Utilizado para quando há uma devolutiva do banco (Select)
+        let resultGenero = await prisma.$queryRawUnsafe(sql)
+    
+        if(resultGenero)
+            return resultGenero //Retorna os dados do banco
+        else
+            return false //Bug no banco de dados
+    
+        } catch(error){
+            return false //Bug de programação.
+        }
+
+
 }
 
-// Buscar gênero por ID
-const selectByIdGenero = async function (id_genero) {
+//Função para buscar uma música pelo ID
+const selectByIDGenero = async function(id){
+
     try {
-        let sql = `SELECT * FROM tb_genero WHERE id = ${id_genero}`;
-        let result = await prisma.$queryRawUnsafe(sql);
-        return result && result.length > 0 ? result : false;
-    } catch (error) {
-        console.error(error);
-        return false;
-    }
-};
+        //Script SQL
+        let sql = `select * from tb_genero where id = ${id}`
+    
+        //Executa o script SQL no banco de dados e AGUARDA (retorna apenas um false)
+        //$queryRawUnsafe = Para retornar dados
+        let resultGenero = await prisma.$queryRawUnsafe(sql)
+    
+        if(resultGenero)
+            return resultGenero //Retorna os dados do banco
+        else
+            return false //Bug no banco de dados
+    
+        } catch(error){
+            return false //Bug de programação.
+        }
+
+}
 
 module.exports = {
-    insertGenero,
+    insertNovoGenero,
     updateGenero,
     deleteGenero,
     selectAllGeneros,
-    selectByIdGenero
-};
+    selectByIDGenero
+}

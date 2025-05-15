@@ -33,7 +33,7 @@ const controllerAlbum = require('./PJT_SQL/Controller/album/ControllerAlbum')
 const controllerGenero = require('./PJT_SQL/Controller/genero/ControllerGenero')
 const controllerGravadora = require('./PJT_SQL/Controller/gravadora/ControllerGravadora')
 
-//Criando formato de dados que será recebido no body da requisição (POST/PUT)
+//bodyparserjson
 const bodyParserJSON = bodyParser.json()
 
 //Cria o objeto app para criar a API
@@ -182,7 +182,7 @@ app.put('/v1/controle-musicas/artista/:id', cors(), bodyParserJSON, async functi
 
 
 //Álbum
-// Rota POST para criar álbum
+// ADICIONAR ÁLBUM
 app.post('/v1/controle-musicas/album', cors(), bodyParserJSON, async function(request, response){
     let contentType = request.headers['content-type'];
     let dadosBody = request.body;
@@ -193,20 +193,16 @@ app.post('/v1/controle-musicas/album', cors(), bodyParserJSON, async function(re
     response.json(result);
 });
 
-app.get('/v1/controle-musicas/album', cors(), async function (request, response) {
-    let result = await controllerAlbum.listarAlbum()
-    console.log("RESULTADO DO CONTROLLER:", result)
+// LISTAR ÁLBUNS
+app.get('/v1/controle-musicas/album', cors(), async function(request, response){
 
-    if (result && result.status_code) {
-        response.status(result.status_code)
-        response.json(result)
-    } else {
-        response.status(500).json({ error: "Erro ao listar álbuns." })
-    }
-    
+    let result = await controllerAlbum.listarAlbum()
+
+    response.status(result.status_code)
+    response.json(result)
 })
 
-// Rota GET para buscar álbum por ID
+// Buscar álbum p/ ID
 app.get('/v1/controle-musicas/album/:id', cors(), async function(request, response) {
     let id = request.params.id;
     let result = await controllerAlbum.listarAlbum(id);
@@ -238,32 +234,22 @@ app.delete('/v1/controle-musicas/album/:id', cors(), async function(request, res
 
 // Gênero
 
-// Rota POST para criar gênero
-app.post('/v1/controle-musicas/genero', cors(), bodyParserJSON, async function (req, res) {
-    try {
-        const novoGenero = req.body;  // Pega os dados do corpo da requisição
+// ADD NOVO GENERO
+app.post('/v1/controle-musicas/genero', cors(), bodyParserJSON, async function(request, response){
+    
+    //Recebe o content-type do Header da requisição!
+    let contentType = request.headers['content-type'] 
+    //Recebe os dados do Body da requisição ! 
+    let dadosBody = request.body
 
-        // Verifica se o nome do gênero foi fornecido
-        if (!novoGenero || !novoGenero.nome) {
-            return res.status(400).json({ msg: "Nome do gênero é obrigatório" });
-        }
+    //Chama a função da controller para inserir os dados e aguarda o retorno da função
+    let resultGenero = await controllerGenero.inserirGenero(dadosBody, contentType)
 
-        // Chama a função de inserção no modelo
-        const result = await controllerGenero.criarGenero(novoGenero);
+    response.status(resultGenero.status_code)
+    response.json(resultGenero)
+})
 
-        // Verifica se o gênero foi inserido com sucesso
-        if (result) {
-            return res.status(201).json({ msg: "Gênero cadastrado com sucesso" });
-        } else {
-            return res.status(500).json({ msg: "Erro ao cadastrar gênero" });
-        }
-    } catch (err) {
-        // Captura qualquer erro e retorna um erro 500
-        console.error(err);
-        return res.status(500).json({ msg: "Erro interno", error: err });
-    }
-});
-
+//Listar os gêneros q existem no banco
 app.get('/v1/controle-musicas/genero', cors(), async function (request, response) {
     let result = await controllerGenero.listarGeneros();
 
@@ -271,21 +257,44 @@ app.get('/v1/controle-musicas/genero', cors(), async function (request, response
     response.json(result);
 });
 
-app.put('/v1/controle-musicas/genero/:id', cors(), bodyParserJSON, async function (request, response) {
-    const id = request.params.id;
-    const dados = request.body;
+//listar gênero pelo ID
+app.get('/v1/controle-musicas/genero/:id', cors(), async function(request, response){
+    //Recebe o ID enviado pelo end-point
+    const id = request.params.id
 
-    const result = await controllerGenero.atualizarGenero(id, dados);
+    //CHama a função
+    let resultGenero = await controllerGenero.buscarGenero(id)
+    
+    console.log(resultGenero)
 
-    response.status(result.status_code);
-    response.json(result);
-});
+    response.status(resultGenero.status_code)
+    response.json(resultGenero)
+})
 
-app.delete('/v1/controle-musicas/genero/:id', async function (request, response) {
-    let idGenero = request.params.id;
-    let result = await controllerGenero.deletarGenero(idGenero);
-    response.status(result.status_code).json(result);
-});
+
+//editar os gêneros
+app.put('/v1/controle-musicas/genero/:id', cors(), bodyParserJSON, async function(request, response){
+    //Recebe o ID enviado pelo end-point
+    const id = request.params.id
+
+    //CHama a função
+    let resultGenero = await controllerGenero.atualizarGenero(id)
+
+    response.status(resultGenero.status_code)
+    response.json(resultGenero)
+})
+
+//deletar os gêneros
+app.delete('/v1/controle-musicas/genero/:id', cors(), async function(request, response){
+    //Recebe o ID enviado pelo end-point
+    const id = request.params.id
+
+    //CHama a função
+    let resultGenero = await controllerGenero.excluirGenero(id)
+
+    response.status(resultGenero.status_code)
+    response.json(resultGenero)
+})
 
 //Gravadora
 app.post('/v1/controle-musicas/gravadora', cors(), bodyParserJSON, async (request, response) => {

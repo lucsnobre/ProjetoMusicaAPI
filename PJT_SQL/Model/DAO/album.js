@@ -20,11 +20,13 @@ const insertNovoAlbum = async function(album){
         data_lancamento,
         duracao,
         numero_faixas,
+        foto_capa,
         id_artista)
     values(  '${album.nome}',
              '${album.lancamento}',
              '${album.duracao}',
              '${album.numero_faixas}',
+             '${album.foto_capa}',
              '${album.id_artista}')`
     //Executa o script SQL no banco de dados e AGUARDA o resultado (retorna um true ou false)
     //$executeRawUnsafe = Usado para quando não há uma devolutiva do banco (POST, UPDATE, DELETE)
@@ -49,6 +51,7 @@ try {
         data_lancamento =             '${album.lancamento}',
         duracao         =             '${album.duracao}',
         numero_faixas   =             '${album.numero_faixas}',
+        foto_capa       =             '${album.foto_capa}',
         id_artista      =             '${album.id_artista}'
         where id        =              ${album.id}`
 

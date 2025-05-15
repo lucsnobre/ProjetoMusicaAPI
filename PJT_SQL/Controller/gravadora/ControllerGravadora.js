@@ -5,8 +5,8 @@
 /* Versão: 1.0                                                              */
 /****************************************************************************/
 
-const gravadoraDAO = require('../../Model/DAO/gravadora.js');
 const MESSAGE = require('../../../Módulo/config.js');
+const gravadoraModel = require('../../Model/DAO/gravadora.js')
 
 // Listar todas as gravadoras
 const listarGravadoras = (req, res) => {

@@ -6,7 +6,7 @@
 /*******************************************************************************/
 
 //Import do arquivo de mensagens e status code
-const message = require('../../modulo/config.js')
+const message = require('../../../Módulo/config.js')
 
 
 //Import do DAO para realizar o CRUD no Banco de dados
@@ -15,7 +15,7 @@ const albumDAO = require('../../Model/DAO/album.js')
 
 
 //Import das controllers
-const controllerArtista = require('../artistas/controllerArtistas.js')
+const controllerArtista = require('../../Controller/artista/ControllerArtista.js')
 
 //Função para inserir uma nova música
 const inserirAlbum = async function (album, contentType) {
@@ -30,7 +30,7 @@ const inserirAlbum = async function (album, contentType) {
 
 
             ) {
-                return message.ERROR_REQUIRE_FIELDS //Status code 400
+                return message.ERROR_REQUIRED_FIELDS //Status code 400
             } else {
                 //Encaminhando os dados da música para o DAO realizar o insert no Banco de dados
                 let result = await albumDAO.insertNovoAlbum(album)
@@ -38,7 +38,7 @@ const inserirAlbum = async function (album, contentType) {
                 if (result) {
                     return message.SUCESS_CREATED_ITEM //201
                 } else {
-                    return message.ERROR_INTERNET_SERVER_MODEL //500 que retorna caso haja erro na MODEL
+                    return message.ERROR_INTERNAL_SERVER_MODEL //500 que retorna caso haja erro na MODEL
                 }
 
             }
@@ -46,7 +46,7 @@ const inserirAlbum = async function (album, contentType) {
             return message.ERROR_CONTENT_TYPE //415 que retorna o erro do tipo de conteúdo do header
         }
     } catch (error) {
-        return message.ERROR_INTERNET_SERVER_CONTROLLER //500 que retorna caso haja erro CONTROLLER
+        return message.ERROR_INTERNAL_SERVER_CONTROLLER //500 que retorna caso haja erro CONTROLLER
     }
 
 
@@ -63,10 +63,10 @@ const atualizarAlbum = async function (id, album, contentType) {
                 album.id_artista == '' || album.id_artista == null ||
                 id == '' || id == undefined || id == null || isNaN(id)
             ) {
-                return message.ERROR_REQUIRE_FIELDS //Status code 400
+                return message.ERROR_REQUIRED_FIELDS //Status code 400
             } else {
                 //Verifica se o ID existe no BD
-                let result = await albumDAO.selectByIdAlbum(id)
+                let result = await albumDAO.selectByIDAlbum(id)
 
                 if (result != false || typeof (result) == 'object') {
                     if (result.length > 0) {

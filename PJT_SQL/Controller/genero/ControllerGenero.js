@@ -5,158 +5,175 @@
 /*Versão: 1.0                                                                  */
 /*******************************************************************************/
 
-const MESSAGE = require('../../../Módulo/config')
+//Import do arquivo de mensagens e status code
+const message = require('../../../Módulo/config.js')
 
 
+//Import do DAO para realizar o CRUD no Banco de dados
+const generoDAO = require('../../model/DAO/genero.js')
 
-//Import do arquivo DAO de música para manipular o BD
-const generoDAO = require('../../Model/DAO/genero')
-
-//Função para inserir uma música
+//Função para inserir um novo genero
 const inserirGenero = async function(genero, contentType){
     try {
-
+        
         if(String(contentType).toLowerCase() == 'application/json')
-
         {
-
-        if(  genero.nome                 == undefined   ||
-             genero.nome                 == ''          || 
-             genero.nome                 == null        || 
-             genero.nome.length          > 80          
-       ){
-           return MESSAGE.ERROR_REQUIRED_FIELDS
-       }else{
-           let resultGenero = generoDAO.insertGenero(genero)
-   
-           if (resultGenero)
-               return MESSAGE.SUCESS_CREATED_ITEM //201
-           else
-               return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
-       }
+            if(genero.nome == '' || genero.nome == null || genero.nome == undefined || genero.nome.length > 100){
+                return message.ERROR_REQUIRE_FIELDS //Status code 400
+            }else{
+                //Encaminhando os dados da música para o DAO realizar o insert no Banco de dados
+                let resultGenero = await generoDAO.insertNovoGenero(genero)
+        
+                if (resultGenero){
+                    return message.SUCESS_CREATED_ITEM //201
+                } else{
+                    return message.ERROR_INTERNAL_SERVER_MODEL //500 que retorna caso haja erro na MODEL
+                }
+        
+            }
         }else{
-            return MESSAGE.ERROR_CONTENT_TYPE //415
-        }
-    } catch (error){
-        return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER //500
+            return message.ERROR_CONTENT_TYPE //415 que retorna o erro do tipo de conteúdo do header
+        }    
+    } catch (error) {
+        return message.ERROR_INTERNET_SERVER_CONTROLLER //500 que retorna caso haja erro CONTROLLER
     }
+
 
 }
 
-//Função para atualizar uma música
-//Função para atualizar uma música
-const atualizarMusica = async function(genero, id, contentType){
-    try {
-        if(String(contentType).toLowerCase() == 'application/json') {
-
-            if( genero.nome             == undefined || genero.nome              == ''        || genero.nome             == null        || genero.nome.length          > 80     ||
-                id                            == ''  || id == undefined                       || id == null                             || isNaN(id)                            || id <= 0
-            ){
-                return MESSAGE.ERROR_REQUIRED_FIELDS //400
+//Função para atulizar um genero já existente
+const atualizarGenero = async function(id, genero, contentType){
+try {
+    if(String(contentType).toLowerCase() == 'application/json'){
+        if( genero.nome            == ''        || genero.nome == null            || genero.nome == undefined            || genero.nome.length > 45           ||
+            id                     == ''        || id == undefined                || id == null                          || isNaN(id)
+            )
+            {
+                return message.ERROR_REQUIRED_FIELDS //Status code 400
             }else{
-                let resultGenero = await selectByIdGenero(id)
+                //Verifica se o ID existe no BD
+                let result = await generoDAO.selectByIDGenero(id)
 
-                if(resultGenero.status_code == 200){
-                    genero.id = id 
-                    let result = await generoDAO.updateGenero(generoDAO) // Adicionado "await"
+                if(result != false || typeof(result) == 'object'){
+                    if(result.length > 0){
+                    //Update
+                    
+                    //Adiciona o atributo do ID no JSON com os dados recebidos no corpo da requisição
+                    genero.id = id
+                    let resultGenero = await generoDAO.updateGenero(genero)
+                    
+                    if(resultGenero){
+                        return message.SUCESS_UPDATED_ITEM //200
+                    }else{
+                        return message.ERROR_NOT_FOUND //404
+                    }
+                    }
 
-                    if(result)
-                        return MESSAGE.SUCESS_UPDATED_ITEM
-                    else
-                        return MESSAGE.ERROR_INTERNAL_SERVER_MODEL
-                }else if(resultGenero.status_code == 404){
-                    return MESSAGE.ERROR_NOT_FOUND
+                }else{
+                    return message.ERROR_NOT_FOUND
                 }
             }
-        } else {
-            return MESSAGE.ERROR_CONTENT_TYPE // 415
-        }
-    } catch (error) {
-        return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER // 500
-    }
-} 
-
-
-//Função para excluir uma música
-const excluirGenero = async function(id) {
-    try {
-        let dadosGenero = await generoDAO.excluirGenero(id)
-
-        if (dadosGenero) {
-            return {
-                status: true,
-                status_code: 200,
-                message: "Música deletada com sucesso."
-            }
-        } else {
-            return MESSAGE.ERROR_NOT_FOUND // 404 
-        }
-    } catch (error) {
-        return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER // 500 
-    }
-}
-
-
-//Função para listar uma música
-const listarGeneros = async function(){
-    try {
-        let dadosGenero = {}
-        //Chamar a função que retorna todas as músicas
-        let resultGenero = await generoDAO.listarGeneros()
-
-        if (resultGenero != false || typeof(resultGenero) == 'object')
-
-        
-    
-    if (resultGenero != false){
-        if(resultGenero.length > 0){
-            //Criando um objeto JSON para retornar a lista de músicas
-            dadosGenero.status = true
-            dadosGenero.status_code = 200
-            dadosGenero.itens = resultGenero.length
-            dadosGenero.musica = resultGenero
-            
-            
-            return dadosGenero //200
         }else{
-            return MESSAGE.ERROR_NOT_FOUND //404
+            return message.ERROR_CONTENT_TYPE //415
         }
-    }else{
-        
-        return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
+} catch (error) {
+        return message.ERROR_INTERNAL_SERVER_CONTROLLER //500
     }
-    
-    
-    
-    
-    } catch (error) {
-        return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER //500 
-    }
-    
 }
 
-//Função para buscar uma música
-const buscarGenero = async function(id) {
-    try {
-        // Chamar a função que retorna a música pelo ID
-        let resultGenero = await generoDAO.buscarGenero(id)
 
-        // Verificar se a função retornou um resultado válido
-        if (resultGenero && typeof resultGenero === 'object' && resultGenero.length > 0) {
-            // Criar um objeto JSON para retornar a música encontrada
-            let dadosGenero = {
-                status: true,
-                status_code: 200,
-                musica: resultMusica 
+
+//Função para excluir uma genero já existente
+const excluirGenero = async function(id){
+    try {
+        if(id == '' || id == undefined || id == null || isNaN(id)){
+            return message.ERROR_REQUIRED_FIELDS //400
+        }else{
+            //Antes de excluir, estamos verificando se existe este ID no BD
+            let resultGenero = await generoDAO.selectByIDGenero(id)
+            if(resultGenero != false || typeof(resultMusica) == 'object'){
+                if(resultGenero.length > 0){
+                    //Delete
+                    let result = await generoDAO.deleteGenero(id)
+
+                    if(result){
+                        return message.SUCESS_DELETED_ITEM //200
+                    }else{
+                        return message.ERROR_INTERNAL_SERVER_MODEL //500
+                    }
+                }else{
+                    return message.ERROR_NOT_FOUND //404
+                }
+            }else{
+                return message.ERROR_INTERNET_SERVER_MODEL //500
             }
-            return dadosGenero // 200
-        } else {
-            // Retornar mensagem de erro caso a música não seja encontrada
-            return MESSAGE.ERROR_NOT_FOUND // 404
-        }
+
+    }
     } catch (error) {
-        // Retornar mensagem de erro interno do servidor em caso de exceção
-        return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER // 500
+        //Sempre que há problemas na controller
+        return message.ERROR_INTERNAL_SERVER_CONTROLLER //500
+    }
+}
+
+//Função para retornar uma lista de todos oos generos
+const listarGeneros = async function(){
+
+    //Objeto JSON
+    let dadosGeneros = {}
+
+    try {
+        let resultGenero = await generoDAO.selectAllGeneros()
+
+        if(resultGenero != false || typeof(resultGenero) == 'object'){
+            if(resultGenero.length > 0){
+                //Cria um JSON para colocar o array de músicas
+                dadosGeneros.status = true,
+                dadosGeneros.status_code = 200,
+                dadosGeneros.items = resultGenero.length,
+                dadosGeneros.generos = resultGenero
+
+                return dadosGeneros
+            }else{
+                return message.ERROR_NOT_FOUND //404
+            }
+        }else{
+            return message.ERROR_INTERNAL_SERVER_MODEL //500
+        }
+
+    } catch (error) {
+        return message.ERROR_INTERNAL_SERVER_CONTROLLER //500
+    }
+}
+
+//Função para retornar uma música pelo ID
+//id = recebe o ID
+const buscarGenero = async function (id_genero){
+    try {
+        if(id_genero == '' || id_genero == undefined || id_genero == null || isNaN(id_genero)){
+            return message.ERROR_REQUIRED_FIELDS //400
+        }else{
+
+        //Objeto JSON
+        let dadosGeneros = {}
+        let resultGenero = await generoDAO.selectByIDGenero(id_genero)
+
+        if(resultGenero != false || typeof(resultGenero) == 'object'){
+            if(resultGenero.length > 0){
+                //Cria um JSON para colocar o array de músicas
+                dadosGeneros.status = true,
+                dadosGeneros.status_code = 200,
+                dadosGeneros.generos = resultGenero
+
+                return dadosGeneros
+            }else{
+                return message.ERROR_NOT_FOUND //404
+            }
+        }else{
+            return message.ERROR_INTERNAL_SERVER_MODEL //500
+        }
+    }
+    } catch (error) {
+        return message.ERROR_INTERNAL_SERVER_CONTROLLER //500
     }
 }
 
@@ -164,9 +181,9 @@ const buscarGenero = async function(id) {
 
 
 module.exports = {
-  inserirGenero,
-  atualizarMusica,
-  excluirGenero,
-  listarGeneros,
-  buscarGenero
+    inserirGenero,
+    atualizarGenero,
+    excluirGenero,
+    listarGeneros,
+    buscarGenero
 }
