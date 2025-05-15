@@ -15,7 +15,7 @@ const prisma = new PrismaClient()
 const insertNovoAlbum = async function(album){
     try {
 
-    let sql = `insert into tbl_albuns
+    let sql = `insert into tb_album
     (   nome,
         data_lancamento,
         duracao,
@@ -110,26 +110,17 @@ const selectAllAlbum = async function(){
 }
 
 //Função para buscar uma música pelo ID
-const selectByIDAlbum = async function(id){
-
+const selectByIDAlbum = async function (id) {
     try {
-        //Script SQL
-        let sql = `select * from tb_album where id = ${id}`
-    
-        //Executa o script SQL no banco de dados e AGUARDA (retorna apenas um false)
-        //$queryRawUnsafe = Para retornar dados
-        let result = await prisma.$queryRawUnsafe(sql)
-    
-        if(result)
-            return result //Retorna os dados do banco
-        else
-            return false //Bug no banco de dados
-    
-        } catch(error){
-            return false //Bug de programação.
-        }
+        let sql = `SELECT * FROM tb_album WHERE id = ${id}`;
+        let result = await prisma.$queryRawUnsafe(sql);
+        return result && result.length > 0 ? result : false;
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+};
 
-}
 
 module.exports = {
     insertNovoAlbum,

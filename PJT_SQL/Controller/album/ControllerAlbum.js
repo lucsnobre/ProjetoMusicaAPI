@@ -185,11 +185,11 @@ const listarAlbum = async function () {
                 return message.ERROR_NOT_FOUND //404
             }
         } else {
-            return message.ERROR_INTERNET_SERVER_MODEL //500
+            return message.ERROR_INTERNAL_SERVER_MODEL //500
         }
 
     } catch (error) {
-        return message.ERROR_INTERNET_SERVER_CONTROLLER //500
+        return message.ERROR_INTERNAL_SERVER_CONTROLLER //500
     }
 }
 
@@ -200,7 +200,7 @@ const buscarAlbum = async function (id) {
         let arrayAlbum = []
 
         if (id == '' || id == undefined || id == null || isNaN(id)) {
-            return message.ERROR_REQUIRE_FIELDS //400
+            return message.ERROR_REQUIRED_FIELDS //400
         } else {
 
             //Objeto JSON
@@ -240,11 +240,11 @@ const buscarAlbum = async function (id) {
                     return message.ERROR_NOT_FOUND //404
                 }
             } else {
-                return message.ERROR_INTERNET_SERVER_MODEL //500
+                return message.ERROR_INTERNAL_SERVER_MODEL //500
             }
         }
     } catch (error) {
-        return message.ERROR_INTERNET_SERVER_CONTROLLER //500
+        return message.ERROR_INTERNAL_SERVER_CONTROLLER //500
     }
 }
 

@@ -194,18 +194,22 @@ app.post('/v1/controle-musicas/album', cors(), bodyParserJSON, async function(re
 });
 
 // LISTAR ÁLBUNS
-app.get('/v1/controle-musicas/album', cors(), async function(request, response){
-
+app.get('/v1/controle-musicas/album', cors(), async function(request, response) {
     let result = await controllerAlbum.listarAlbum()
 
-    response.status(result.status_code)
-    response.json(result)
+    if (!result) {
+        console.error("Erro: controllerAlbum.listarAlbum() retornou undefined ou null")
+        return response.status(500).json({ erro: 'Erro interno no servidor' })
+    }
+
+    response.status(result.status_code).json(result)
 })
+
 
 // Buscar álbum p/ ID
 app.get('/v1/controle-musicas/album/:id', cors(), async function(request, response) {
     let id = request.params.id;
-    let result = await controllerAlbum.listarAlbum(id);
+    let result = await controllerAlbum.buscarAlbum(id);
 
     response.status(result.status_code);
     response.json(result);
